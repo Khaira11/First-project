@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'khaira23/harpreet-app'
+        DOCKER_TAG = 'latest'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                url: 'https://git@github.com:Khaira11/First-project.git',
+                credentialsId: 'GITHUB_11'
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    dockerImage = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                }
+            }
+        }
+        
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'ccb22f1e-6a13-4f0d-a858-c369fb1709b0') {
+                        dockerImage.push()
+                    }
+                }
+            }
+        }
+    }
+}
